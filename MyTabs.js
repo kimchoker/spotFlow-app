@@ -1,10 +1,11 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import { SafeAreaView, StyleSheet, Text, StatusBar } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons, Octicons, MaterialIcons, AntDesign } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
 import Spinner from 'react-native-loading-spinner-overlay';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Tab = createBottomTabNavigator();
 
@@ -13,67 +14,13 @@ export default function MyTabs() {
   StatusBar.setTranslucent(true);
   StatusBar.setBarStyle("dark-content");
 
-  const { email, setEmail, nickname, setNickname,setProfilePic,setStatMsg,setFollower, setFollowing ,isLoggedIn, setIsLoggedIn, joinDate, setJoinDate } = useContext(UserContext);
-  const [isNew, setIsNew] = useState("");
-
-
-  const subscribeUrl = "http://52.64.235.44/sub";
-    useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const getCustomerInfo = async () => {
-      if (token != null) {
-        try {
-          const response = await CustomerApi.getCustomerInfo(token);
-          setEmail(response.data.customer.email);
-          setNickname(response.data.customer.nickName);
-          setProfilePic(response.data.customer.profilePic);
-          setStatMsg(response.data.customer.statMsg);
-          setFollower(response.data.follower.follower);
-          setFollowing(response.data.follower.following);
-          setJoinDate(response.data.joinDate);
-          setIsLoggedIn(true);
-          console.log(isLoggedIn);
-          if (joinDate !== null) {
-            const eventSource = new EventSource(subscribeUrl + "?joinDate=" + joinDate);
-            console.log(eventSource);
-            // addComment 이벤트 리스너 등록
-            eventSource.addEventListener("addComment", function(event) {
-              let message = event.data;
-              setIsNew(event.data);
-              console.log(message);
-              // alert(message);
-            });
-      
-            // error 이벤트 리스너 등록
-            eventSource.addEventListener("error", function(event) {
-              eventSource.close();
-            });
-      
-            // 컴포넌트가 언마운트될 때 EventSource 객체 닫기
-            return () => {
-              eventSource.close();
-            };
-          } else {
-            return null;
-          }
-        } catch (error) {
-          localStorage.clear();
-          setIsLoggedIn(false);
-        }
-      } else {
-        return null;
-      }
-    };
-    getCustomerInfo();
-  }, [isLoggedIn,setEmail, setNickname, setProfilePic, setStatMsg, setIsLoggedIn,setFollower, setFollowing, setJoinDate]);
-
 
   return (
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={{
           position: 'absolute',
-          activeTintColor: '#e91e63',
+          activeTintColor: '#00C2FA',
           tabBarStyle: {
               height: 60,
               paddingTop: 8,
@@ -88,11 +35,11 @@ export default function MyTabs() {
           ),
         }}
       />
-      <Tab.Screen name="notification" component={Noti}
+      <Tab.Screen name="notification" component={Setting}
         options={{
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            isNew !== "" ? <MaterialIcons name="notifications-active" size={size} color={color} /> : <MaterialIcons name="notifications" size={size} color={color} />
+          tabBarIcon: ({ color, size }) => ( <MaterialIcons name="notifications" size={size} color={color} />
+            // isNew !== "" ? <MaterialIcons name="notifications-active" size={size} color={color} /> : <MaterialIcons name="notifications" size={size} color={color} />
           ),
         }}
       />
@@ -104,11 +51,11 @@ export default function MyTabs() {
           ),
         }}
       />
-      <Tab.Screen name="Login/out" component={LoginOut}
+      <Tab.Screen name="Login/out" component={Board}
         options={{
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            isLoggedIn ? <AntDesign name="logout" size={size} color={color} /> : <AntDesign name="login" size={size} color={color} /> 
+          tabBarIcon: ({ color, size }) => ( <AntDesign name="logout" size={size} color={color} />
+            // isLoggedIn ? <AntDesign name="logout" size={size} color={color} /> : <AntDesign name="login" size={size} color={color} /> 
           ),
         }}
        />
