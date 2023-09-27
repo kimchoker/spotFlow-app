@@ -1,6 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import React, { useState, useRef, useContext, UserContext } from 'react';
-import { useNavigate } from "react-router";
+import React, { useState, useRef, useContext } from 'react';
+import { UserContext } from './UserStore';
 import { SafeAreaView, StyleSheet, Text, StatusBar } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons, Octicons, MaterialIcons, AntDesign } from '@expo/vector-icons';
@@ -8,7 +8,7 @@ import { WebView } from 'react-native-webview';
 import Spinner from 'react-native-loading-spinner-overlay';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomerApi from './CustomerApi';
-import UserStore from './UserStore';
+import { useNavigation } from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
 
@@ -18,11 +18,12 @@ export default function MyTabs() {
   StatusBar.setBarStyle("dark-content");
 
   const [isNew, setIsNew] = useState("");
-  const navigate = useNavigate();
+  const navigation = useNavigation();
   const subscribeUrl = 'https://52.64.235.44/sub';
   const { isLoggedIn, setIsLoggedIn, joinDate, setJoinDate } = useContext(UserContext);
 
     useEffect(() => {
+    const saveExToken = AsyncStorage.setItem(authToken , asddsafdsafsdsfasd);
     const token = AsyncStorage.getItem('authToken');
     const getCustomerInfo = async () => {
       if (token != null) {
@@ -68,11 +69,11 @@ export default function MyTabs() {
   const logOut = () =>{
     AsyncStorage.clear();
     setIsLoggedIn(false);
-    navigate("/");
+    navigation.navigate("/");
   }
   
   const login = () => { 
-    navigate("/login")
+    navigation.navigate("/login")
   }
 
 
@@ -112,14 +113,20 @@ export default function MyTabs() {
           ),
         }}
       />
-      <Tab.Screen name={isLoggedIn ? 'Logout' : 'Login'} 
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => ( 
-             isLoggedIn ? <AntDesign name="logout" size={size} color={color} onPress={logOut} /> : <AntDesign name="login" size={size} color={color} onPress={handleLogin}/> 
-          ),
+      <AntDesign
+        name={isLoggedIn ? 'logout' : 'login'}
+        size={size}
+        color={color}
+        onPress={() => {
+          if (isLoggedIn) {
+            AsyncStorage.clear();
+            setIsLoggedIn(false);
+          } else {
+            // 로그인 화면으로 이동
+            navigation.navigate('/login');
+          }
         }}
-       />
+      />
     </Tab.Navigator>
   );
 }
