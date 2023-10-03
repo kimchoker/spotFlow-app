@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import React, { useState, useRef, useContext } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import { UserContext } from './UserStore';
 import { SafeAreaView, StyleSheet, Text, StatusBar } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -9,6 +9,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomerApi from './CustomerApi';
 import { useNavigation } from '@react-navigation/native';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -23,8 +24,11 @@ export default function MyTabs() {
   const { isLoggedIn, setIsLoggedIn, joinDate, setJoinDate } = useContext(UserContext);
 
     useEffect(() => {
-    const saveExToken = AsyncStorage.setItem(authToken , asddsafdsafsdsfasd);
-    const token = AsyncStorage.getItem('authToken');
+    
+    const token = "sddsafdsafsdsfasd";
+    AsyncStorage.setItem('exToken',token);
+
+    console.log(token);
     const getCustomerInfo = async () => {
       if (token != null) {
         try {
@@ -113,18 +117,27 @@ export default function MyTabs() {
           ),
         }}
       />
-      <AntDesign
+      <Tab.Screen
         name={isLoggedIn ? 'logout' : 'login'}
-        size={size}
-        color={color}
-        onPress={() => {
-          if (isLoggedIn) {
-            AsyncStorage.clear();
-            setIsLoggedIn(false);
-          } else {
-            // 로그인 화면으로 이동
-            navigation.navigate('/login');
-          }
+        component={LoginOut}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign
+              name={isLoggedIn ? 'logout' : 'login'}
+              size={size} // Tab.Screen에서 전달되는 size를 그대로 사용
+              color={color}
+              onPress={() => {
+                if (isLoggedIn) {
+                  AsyncStorage.clear();
+                  setIsLoggedIn(false);
+                } else {
+                  // 로그인 화면으로 이동
+                  navigation.navigate('/login');
+                }
+              }}
+            />
+          ),
         }}
       />
     </Tab.Navigator>
